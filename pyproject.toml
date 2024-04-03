@@ -4,9 +4,18 @@ version = "0.1.0"
 description = ""
 authors = ["Daniel Auerbach <auerbach@ict.usc.edu>"]
 readme = "README.md"
+packages = [{include = "py_learning_standards"}]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.8.4"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.3.0"
+flake8 = "^7.0.0"
+mypy = "^1.9.0"
+pep8-naming = "^0.13.3"
+licenseheaders = "^0.8.8"
 
 
 [build-system]
