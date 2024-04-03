@@ -16,6 +16,9 @@ flake8 = "^7.0.0"
 mypy = "^1.9.0"
 pep8-naming = "^0.13.3"
 licenseheaders = "^0.8.8"
+coverage = "^7.4.4"
+py = "^1.11.0"
+pytest = "^8.1.1"
 
 
 [build-system]

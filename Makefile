@@ -20,10 +20,6 @@ deps-show-outdated:
 deps-update:
 	poetry update
 
-.PHONY: docker-build
-docker-build:
-	cd racr_plugin_framework && $(MAKE) docker-build
-	cd racr_plugin_framework_api && $(MAKE) docker-build
 
 .PHONY: install
 install: poetry-ensure-installed
@@ -54,23 +50,9 @@ poetry-ensure-installed:
 
 .PHONY: test
 test:
-	cd racr_plugin_framework && $(MAKE) test
-	cd racr_plugin_framework_api && $(MAKE) test
-
-.PHONY: test-not-slow
-test-not-slow:
-	cd racr_plugin_framework && $(MAKE) test-not-slow
-	cd racr_plugin_framework_api && $(MAKE) test-not-slow
-
-.PHONY: test-all
-test-all:
-	cd racr_plugin_framework && $(MAKE) test-all
-	cd racr_plugin_framework_api && $(MAKE) test-all
-
-.PHONY: test-all-not-slow
-test-all-not-slow:
-	cd racr_plugin_framework && $(MAKE) test-all-not-slow
-	cd racr_plugin_framework_api && $(MAKE) test-all-not-slow
+	poetry run coverage run \
+		--omit="$(PWD)/tests" \
+		-m py.test -vv $(args)
 
 .PHONY: test-format
 test-format: $(VENV)
