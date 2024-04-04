@@ -4,3 +4,29 @@
 #
 # The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 #
+from py_learning_standards import BaseJSONLDObject
+import pytest
+
+
+@pytest.mark.parametrize(
+    "object,expected_dict",
+    [
+        (BaseJSONLDObject(), {}),
+        (
+            BaseJSONLDObject("test_id", "test_type"),
+            {"id": "test_id", "@type": "test_type"},
+        ),
+    ],
+)
+def test_to_json_ld_dictionary(object, expected_dict):
+    result = object.to_json_ld_dict()
+    assert result == expected_dict
+
+
+@pytest.mark.parametrize(
+    "dictionary,expected_object",
+    [({}, BaseJSONLDObject()), ({"id": "penguin"}, BaseJSONLDObject(id="penguin"))],
+)
+def test_from_json_ld_dictionary(dictionary, expected_object):
+    result = BaseJSONLDObject.from_json_ld_dict(dictionary, BaseJSONLDObject)
+    assert result == expected_object

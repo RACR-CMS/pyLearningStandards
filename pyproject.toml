@@ -8,6 +8,7 @@ packages = [{include = "py_learning_standards"}]
 
 [tool.poetry.dependencies]
 python = "^3.8.4"
+pyld = "^2.0.4"
 
 
 [tool.poetry.group.dev.dependencies]
