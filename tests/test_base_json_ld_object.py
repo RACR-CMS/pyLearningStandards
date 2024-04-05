@@ -4,7 +4,14 @@
 #
 # The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 #
-from py_learning_standards import BaseJSONLDObject
+from py_learning_standards import (
+    BaseJSONLDObject,
+    Competency,
+    LearningResource,
+    NAMESPACE_CEASN,
+    NAMESPACE_DCT,
+    NAMESPACE_LRMI,
+)
 import pytest
 
 
@@ -16,17 +23,111 @@ import pytest
             BaseJSONLDObject("test_id", "test_type"),
             {"id": "test_id", "@type": "test_type"},
         ),
+        (
+            Competency(type="ceasn:Competency", ctid="testId"),
+            {"@type": "ceasn:Competency", f"{NAMESPACE_CEASN}:ctid": "testId"},
+        ),
+        (
+            Competency(
+                type="ceasn:Competency",
+                ctid="testId",
+                competency_text={"en-us": "testText"},
+            ),
+            {
+                "@type": "ceasn:Competency",
+                f"{NAMESPACE_CEASN}:ctid": "testId",
+                f"{NAMESPACE_CEASN}:competencyText": {"en-us": "testText"},
+            },
+        ),
+        (
+            LearningResource(
+                type="LearningResource",
+                description="penguins",
+                title="test title",
+                teaches=[
+                    Competency(
+                        ctid="testctid",
+                        competency_text={"en-us": "test text"},
+                        relevance=0.5,
+                    )
+                ],
+            ),
+            {
+                "@type": "LearningResource",
+                f"{NAMESPACE_DCT}:description": "penguins",
+                f"{NAMESPACE_DCT}:title": "test title",
+                f"{NAMESPACE_LRMI}:teaches": [
+                    {
+                        f"{NAMESPACE_CEASN}:ctid": "testctid",
+                        f"{NAMESPACE_CEASN}:competencyText": {"en-us": "test text"},
+                        "relevance": 0.5,
+                    },
+                ],
+            },
+        ),
     ],
 )
 def test_to_json_ld_dictionary(object, expected_dict):
-    result = object.to_json_ld_dict()
+    result = object.to_dict_no_nones()
     assert result == expected_dict
 
 
 @pytest.mark.parametrize(
-    "dictionary,expected_object",
-    [({}, BaseJSONLDObject()), ({"id": "penguin"}, BaseJSONLDObject(id="penguin"))],
+    "dictionary,expected_object,object_type",
+    [
+        ({}, BaseJSONLDObject(), BaseJSONLDObject),
+        (
+            {"id": "penguins", "@type": "testType"},
+            BaseJSONLDObject(id="penguins", type="testType"),
+            BaseJSONLDObject,
+        ),
+        (
+            {"@type": "ceasn:Competency", "ceasn:ctid": "testId"},
+            Competency(type="ceasn:Competency", ctid="testId"),
+            Competency,
+        ),
+        (
+            {
+                "@type": "ceasn:Competency",
+                "ceasn:ctid": "testId",
+                "ceasn:competencyText": {"en-us": "testText"},
+            },
+            Competency(
+                type="ceasn:Competency",
+                ctid="testId",
+                competency_text={"en-us": "testText"},
+            ),
+            Competency,
+        ),
+        (
+            {
+                "@type": "LearningResource",
+                f"{NAMESPACE_DCT}:description": "penguins",
+                f"{NAMESPACE_DCT}:title": "test title",
+                f"{NAMESPACE_LRMI}:teaches": [
+                    {
+                        f"{NAMESPACE_CEASN}:ctid": "testctid",
+                        f"{NAMESPACE_CEASN}:competencyText": {"en-us": "test text"},
+                        "relevance": 0.5,
+                    },
+                ],
+            },
+            LearningResource(
+                type="LearningResource",
+                description="penguins",
+                title="test title",
+                teaches=[
+                    Competency(
+                        ctid="testctid",
+                        competency_text={"en-us": "test text"},
+                        relevance=0.5,
+                    )
+                ],
+            ),
+            LearningResource,
+        ),
+    ],
 )
-def test_from_json_ld_dictionary(dictionary, expected_object):
-    result = BaseJSONLDObject.from_json_ld_dict(dictionary, BaseJSONLDObject)
+def test_from_json_ld_dictionary(dictionary, expected_object, object_type):
+    result = object_type.from_dict(dictionary)
     assert result == expected_object

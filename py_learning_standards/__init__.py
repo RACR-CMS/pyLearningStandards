@@ -5,7 +5,8 @@
 # The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 #
 from dataclasses import dataclass
-from typing import Dict, Any, Optional, Type
+from dataclass_wizard import JSONWizard, json_field
+from typing import Dict, Any, Optional, List, cast
 
 NAMESPACE_ASN = "asn"
 NAMESPACE_CETERMS = "ceterms"
@@ -20,44 +21,62 @@ NAMESPACE_SDO = "sdo"
 NAMESPACE_SKOS = "skos"
 
 
+def to_list_no_nones(list: List[Any]) -> List[Any]:
+    result = []
+    for item in list:
+        if isinstance(item, Dict):
+            result.append(to_dict_no_nones(item))
+        elif isinstance(item, List):
+            result.append(cast(Any, to_list_no_nones(item)))
+        else:
+            result.append(item)
+    return result
+
+
+def to_dict_no_nones(dictionary: Dict) -> Dict[str, Any]:
+    result = {}
+
+    for key in dictionary.keys():
+        if dictionary[key] is not None:
+            if isinstance(dictionary[key], Dict):
+                result[key] = to_dict_no_nones(dictionary[key])
+            if isinstance(dictionary[key], List):
+                result[key] = cast(Any, to_list_no_nones(dictionary[key]))
+            else:
+                result[key] = dictionary[key]
+    return result
+
+
 @dataclass
-class BaseJSONLDObject:
+class BaseJSONLDObject(JSONWizard):
 
-    id: Optional[str] = None
-    type: Optional[str] = None
+    id: Optional[str] = json_field("id", all=True, default=None)
+    type: Optional[str] = json_field("@type", all=True, default=None)
 
-    ID_FIELD_NAME = "id"
-    TYPE_FIELD_NAME = "@type"
+    def to_dict_no_nones(self) -> Dict[str, Any]:
+        return to_dict_no_nones(self.to_dict())
 
-    @classmethod
-    def from_json_ld_dict(cls, json_ld_dict: Dict[str, Any], object_type: Type) -> Any:
-        if not issubclass(object_type, BaseJSONLDObject):
-            raise RuntimeError("attempting to parse into a non Base JSON Object")
-        result = object_type()
 
-        if cls.ID_FIELD_NAME in json_ld_dict.keys():
-            result.id = json_ld_dict[cls.ID_FIELD_NAME]
-        if cls.TYPE_FIELD_NAME in json_ld_dict.keys():
-            result.type = json_ld_dict[cls.TYPE_FIELD_NAME]
-        return result
+@dataclass
+class Competency(BaseJSONLDObject):
 
-    def to_json_ld_dict(self) -> Dict[str, Any]:
-        result: Dict[str, Any] = {}
-        if self.id is not None:
-            result[self.ID_FIELD_NAME] = self.id
-        if self.type is not None:
-            result[self.TYPE_FIELD_NAME] = self.type
-        return result
+    ctid: Optional[str] = json_field(f"{NAMESPACE_CEASN}:ctid", all=True, default=None)
+    competency_text: Optional[Dict[str, str]] = json_field(
+        f"{NAMESPACE_CEASN}:competencyText", all=True, default=None
+    )
+    relevance: Optional[float] = json_field("relevance", all=True, default=None)
 
 
 @dataclass
 class LearningResource(BaseJSONLDObject):
 
-    @classmethod
-    def from_json_ld_dict(cls, json_ld_dict: Dict[str, Any], object_type: Type) -> Any:
-        result = BaseJSONLDObject.from_json_ld_dict(json_ld_dict, object_type)
-        return result
-
-    def to_json_ld_dict(self) -> Dict[str, Any]:
-        result = super().to_json_ld_dict()
-        return result
+    assesses: Optional[List[Competency]] = json_field(
+        f"{NAMESPACE_LRMI}:assesses", all=True, default=None
+    )
+    teaches: Optional[List[Competency]] = json_field(
+        f"{NAMESPACE_LRMI}:teaches", all=True, default=None
+    )
+    title: Optional[str] = json_field(f"{NAMESPACE_DCT}:title", all=True, default=None)
+    description: Optional[str] = json_field(
+        f"{NAMESPACE_DCT}:description", all=True, default=None
+    )
