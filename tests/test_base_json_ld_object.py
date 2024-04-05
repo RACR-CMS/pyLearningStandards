@@ -16,63 +16,6 @@ import pytest
 
 
 @pytest.mark.parametrize(
-    "object,expected_dict",
-    [
-        (BaseJSONLDObject(), {}),
-        (
-            BaseJSONLDObject("test_id", "test_type"),
-            {"id": "test_id", "@type": "test_type"},
-        ),
-        (
-            Competency(type="ceasn:Competency", ctid="testId"),
-            {"@type": "ceasn:Competency", f"{NAMESPACE_CEASN}:ctid": "testId"},
-        ),
-        (
-            Competency(
-                type="ceasn:Competency",
-                ctid="testId",
-                competency_text={"en-us": "testText"},
-            ),
-            {
-                "@type": "ceasn:Competency",
-                f"{NAMESPACE_CEASN}:ctid": "testId",
-                f"{NAMESPACE_CEASN}:competencyText": {"en-us": "testText"},
-            },
-        ),
-        (
-            LearningResource(
-                type="LearningResource",
-                description="penguins",
-                title="test title",
-                teaches=[
-                    Competency(
-                        ctid="testctid",
-                        competency_text={"en-us": "test text"},
-                        relevance=0.5,
-                    )
-                ],
-            ),
-            {
-                "@type": "LearningResource",
-                f"{NAMESPACE_DCT}:description": "penguins",
-                f"{NAMESPACE_DCT}:title": "test title",
-                f"{NAMESPACE_LRMI}:teaches": [
-                    {
-                        f"{NAMESPACE_CEASN}:ctid": "testctid",
-                        f"{NAMESPACE_CEASN}:competencyText": {"en-us": "test text"},
-                        "relevance": 0.5,
-                    },
-                ],
-            },
-        ),
-    ],
-)
-def test_to_json_ld_dictionary(object, expected_dict):
-    result = object.to_dict_no_nones()
-    assert result == expected_dict
-
-
-@pytest.mark.parametrize(
     "dictionary,expected_object,object_type",
     [
         ({}, BaseJSONLDObject(), BaseJSONLDObject),
@@ -128,6 +71,8 @@ def test_to_json_ld_dictionary(object, expected_dict):
         ),
     ],
 )
-def test_from_json_ld_dictionary(dictionary, expected_object, object_type):
+def test_serialization(dictionary, expected_object, object_type):
     result = object_type.from_dict(dictionary)
     assert result == expected_object
+    copy = result.to_dict_no_nones()
+    assert copy == dictionary
