@@ -11,6 +11,8 @@ from py_learning_standards import (
     NAMESPACE_CEASN,
     NAMESPACE_DCT,
     NAMESPACE_LRMI,
+    NAMESPACE_SDO,
+    create_en_us_lang_string,
 )
 import pytest
 
@@ -33,12 +35,12 @@ import pytest
             {
                 "@type": "ceasn:Competency",
                 "ceasn:ctid": "testId",
-                "ceasn:competencyText": {"en-us": "testText"},
+                "ceasn:competencyText": create_en_us_lang_string("testText"),
             },
             Competency(
                 type="ceasn:Competency",
                 ctid="testId",
-                competency_text={"en-us": "testText"},
+                competency_text=create_en_us_lang_string("testText"),
             ),
             Competency,
         ),
@@ -50,10 +52,14 @@ import pytest
                 f"{NAMESPACE_LRMI}:teaches": [
                     {
                         f"{NAMESPACE_CEASN}:ctid": "testctid",
-                        f"{NAMESPACE_CEASN}:competencyText": {"en-us": "test text"},
+                        f"{NAMESPACE_CEASN}:competencyText": create_en_us_lang_string(
+                            "test text"
+                        ),
                         "relevance": 0.5,
                     },
                 ],
+                f"{NAMESPACE_SDO}:duration": "PT60S",
+                "complexity": 0.75,
             },
             LearningResource(
                 type="LearningResource",
@@ -62,10 +68,12 @@ import pytest
                 teaches=[
                     Competency(
                         ctid="testctid",
-                        competency_text={"en-us": "test text"},
+                        competency_text=create_en_us_lang_string("test text"),
                         relevance=0.5,
                     )
                 ],
+                duration="PT60S",
+                complexity=0.75,
             ),
             LearningResource,
         ),

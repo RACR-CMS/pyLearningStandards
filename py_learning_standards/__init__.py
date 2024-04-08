@@ -57,6 +57,10 @@ class BaseJSONLDObject(JSONWizard):
         return to_dict_no_nones(self.to_dict())
 
 
+def create_en_us_lang_string(raw_string: str) -> Dict[str, str]:
+    return {"en_us": raw_string}
+
+
 @dataclass
 class Competency(BaseJSONLDObject):
 
@@ -80,3 +84,7 @@ class LearningResource(BaseJSONLDObject):
     description: Optional[str] = json_field(
         f"{NAMESPACE_DCT}:description", all=True, default=None
     )
+    duration: Optional[str] = json_field(
+        f"{NAMESPACE_SDO}:duration", all=True, default=None
+    )
+    complexity: Optional[float] = json_field("complexity", all=True, default=None)
