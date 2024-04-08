@@ -58,7 +58,7 @@ class BaseJSONLDObject(JSONWizard):
 
 
 def create_en_us_lang_string(raw_string: str) -> Dict[str, str]:
-    return {"en_us": raw_string}
+    return {"en-us": raw_string}
 
 
 @dataclass
