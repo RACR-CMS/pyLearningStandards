@@ -65,6 +65,7 @@ def create_en_us_lang_string(raw_string: str) -> Dict[str, str]:
 class Competency(BaseJSONLDObject):
 
     ctid: Optional[str] = json_field(f"{NAMESPACE_CEASN}:ctid", all=True, default=None)
+    competency_label: Optional[Dict[str,str]] = json_field(f"{NAMESPACE_CEASN}:competencyLabel", all=True, default=None)
     competency_text: Optional[Dict[str, str]] = json_field(
         f"{NAMESPACE_CEASN}:competencyText", all=True, default=None
     )
