@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pylearningstandards"
-version = "0.2.3"
+version = "0.2.4"
 description = ""
 authors = ["Daniel Auerbach <auerbach@ict.usc.edu>"]
 readme = "README.md"
