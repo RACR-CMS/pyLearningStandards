@@ -73,7 +73,7 @@ class Competency(BaseJSONLDObject):
     )
     relevance: Optional[float] = json_field("relevance", all=True, default=None)
     competency_metadata: Optional[str] = json_field(
-        f"competencyMetadata", all=True, default=None
+        "competencyMetadata", all=True, default=None
     )
 
 
